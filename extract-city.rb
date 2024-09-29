@@ -157,12 +157,6 @@ def main
   city_name = "基線" # 例として市区町村名を指定
   romaji = find_romaji_by_city_and_postal_code(processed_data, postal_code, city_name)
 
-  if kanji_index
-    puts "The index of '#{city_name}' in kanji address is: #{kanji_index}"
-  else
-    puts "'#{city_name}' was not found in the processed data."
-  end
-
   # (FINAL)成功したメッセージを表示する
   puts "ローマ字は『#{romaji}』です"
   puts "process csv successly"
