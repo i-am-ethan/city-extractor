@@ -39,6 +39,16 @@ def extract_zip(zip_filepath, extract_dir)
   end
 end
 
+# 全角スペースを半角スペースに変換
+def replace_fullwidth_space(text)
+  text.gsub('　', ' ')
+end
+
+# 郵便番号の整形：0が省略されている場合に付与
+def format_postal_code(postal_code)
+  postal_code.rjust(7, '0')  # 7桁に満たない場合、0を付ける
+end
+
 def process_csv(csv_file_path)
   concatenated_addresses = []
 
