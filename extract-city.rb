@@ -1,5 +1,6 @@
 require 'open-uri'
 require 'zip'
+require 'csv'
 
 # zipをダウンロードする
 def download_zip(url, download_dir, zip_filename)
@@ -12,7 +13,11 @@ def download_zip(url, download_dir, zip_filename)
     end
   end
 
-  puts "Downloaded #{zip_filename} to #{zip_filepath}"
+  puts "*********************************************"
+  puts "*********************************************"
+  puts "LOG::Downloaded #{zip_filename} to #{zip_filepath}"
+  puts "*********************************************"
+  puts "*********************************************"
   zip_filepath
 end
 
@@ -25,14 +30,40 @@ def extract_zip(zip_filepath, extract_dir)
       entry_path = File.join(extract_dir, entry.name)
       FileUtils.mkdir_p(File.dirname(entry_path))
       zip_file.extract(entry, entry_path) unless File.exist?(entry_path)
-      puts "Extracted #{entry.name} to #{entry_path}"
+      puts "*********************************************"
+      puts "*********************************************"
+      puts "LOG::Extracted #{entry.name} to #{entry_path}"
+      puts "*********************************************"
+      puts "*********************************************"
     end
   end
 end
 
+def process_csv(csv_file_path)
+  concatenated_addresses = []
+
+  CSV.foreach(csv_file_path, headers: false, col_sep: ",", quote_char: "\"", encoding: "Shift_JIS:UTF-8", liberal_parsing: true) do |row|
+    kanji_address = concat_kanji_address(row)
+    romaji_address = concat_romaji_address(row)
+    concatenated_addresses << [kanji_address, romaji_address]
+  end
+
+  concatenated_addresses
+
+end
+
+def concat_kanji_address(row)
+  "#{row[1]} #{row[2]} #{row[3]}".strip
+end
+
+def concat_romaji_address(row)
+  "#{row[4]} #{row[5]} #{row[6]}".strip
+end
+
 def main
   # (1)zipをダウンロードする
-  url = "https://www.post.japanpost.jp/zipcode/dl/kogaki/zip/ken_all.zip"
+  # url = "https://www.post.japanpost.jp/zipcode/dl/kogaki/zip/ken_all.zip"
+  url = "https://www.post.japanpost.jp/zipcode/dl/roman/KEN_ALL_ROME.zip"
   download_dir = "./downloads"
   zip_filename = "ken_all.zip"
   zip_filepath = download_zip(url, download_dir, zip_filename)
@@ -41,12 +72,25 @@ def main
   extract_dir = "./extracted_files"
   extract_zip(zip_filepath, extract_dir)
 
-  # (3)csvからデータを取得する
+
+  # (3)解凍されたCSVファイルのパスを指定する
+  csv_file_path = File.join(extract_dir, 'KEN_ALL_ROME.csv') # 実際のファイル名に変更してください
 
   # (4)csvのデータを加工する
+  processed_data = process_csv(csv_file_path)
+  if processed_data.empty?
+    return puts "processed_data is empty"
+  end 
+
+  # ログ
+  puts "process_data$$$$$$$$$$$$$$$"
+  p processed_data
+  puts "process_data$$$$$$$$$$$$$$$"
+
+  # (5)配列の中から指定した市区のローマ字を取得する
 
   # (5)成功したメッセージを表示する
-  puts "csv"
+  puts "process csv successly"
 end
 
 # main関数を実行する
