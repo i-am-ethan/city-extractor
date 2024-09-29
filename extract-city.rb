@@ -66,8 +66,15 @@ def concat_kanji_address(row)
   "#{row[1]} #{row[2]} #{row[3]}".strip
 end
 
+def remove_unwanted_romaji_parts(raw_romaji)
+  unwanted_parts = ["TO", "FU", "KEN", "SHI", "KU", "CHO", "GUN", "MURA"]
+  raw_romaji.split(" ").reject { |part| unwanted_parts.include?(part) }.join(" ")
+end
+
 def concat_romaji_address(row)
-  "#{row[4]} #{row[5]} #{row[6]}".strip
+  # ローマ字の住所部分を結合し、不要な部分を除外
+  raw_romaji = "#{row[4]} #{row[5]} #{row[6]}".strip
+  remove_unwanted_romaji_parts(raw_romaji)
 end
 
 # 指定された郵便番号と市区町村名から漢字部分のインデックスを取得する
