@@ -78,20 +78,43 @@ def concat_romaji_address(row)
 end
 
 # 指定された郵便番号と市区町村名から漢字部分のインデックスを取得する
-def find_kanji_index_by_city_and_postal_code(processed_data, postal_code, city_name)
+def find_romaji_by_city_and_postal_code(processed_data, postal_code, city_name)
   filtered_data = processed_data.select { |entry| entry[:postal_code] == postal_code }
   filtered_data.each do |entry|
     kanji_parts = entry[:kanji_address].split(" ")
+    romaji_parts = entry[:romaji_address].split(" ")
 
     # 指定された市区町村名がどの部分に含まれているかを検索
     kanji_index = kanji_parts.find_index { |part| part.include?(city_name) }
     if kanji_index
+
       puts "*********************************************"
       puts "Found '#{city_name}' in kanji_parts at index: #{kanji_index}"
       puts "kanji_parts:'#{kanji_parts}'"
+      puts "romaji_parts:'#{romaji_parts}'"
       puts "*********************************************"
-      return kanji_index
+
+      case kanji_index
+      when 0
+        puts "漢字インデックスは0なので都道府県です。"
+        return romaji_parts[0].downcase
+      when 1
+        puts "漢字インデックス1"
+        return romaji = romaji_parts[1].downcase 
+      when 2
+        puts "漢字インデックス2"
+        return romaji = romaji_parts[2].downcase
+      when 3
+        puts "漢字インデックス3"
+        return romaji = romaji_parts[3].downcase
+      when 4
+        puts "漢字インデックス4"
+        return romaji = romaji_parts[4].downcase
+      end
+
+      return romaji
     end
+
   end
   puts "*********************************************"
   puts "NotFound:kanji_index for #{city_name} with postal code #{postal_code}"
@@ -124,9 +147,15 @@ def main
   p processed_data
 
   # (5)配列の中から指定した市区町村名の漢字インデックスを取得する
-  postal_code = "9010401" # 例として郵便番号を指定
-  city_name = "東風平" # 例として市区町村名を指定
-  kanji_index = find_kanji_index_by_city_and_postal_code(processed_data, postal_code, city_name)
+  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  # [[[[[[[[[[[[[[[[[[[[[[[WORNING]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+  # 0が省略されている郵便番号に気をつけること
+  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  postal_code = "0800833" # 例として郵便番号を指定
+  city_name = "基線" # 例として市区町村名を指定
+  romaji = find_romaji_by_city_and_postal_code(processed_data, postal_code, city_name)
 
   if kanji_index
     puts "The index of '#{city_name}' in kanji address is: #{kanji_index}"
@@ -135,6 +164,7 @@ def main
   end
 
   # (FINAL)成功したメッセージを表示する
+  puts "ローマ字は『#{romaji}』です"
   puts "process csv successly"
 end
 
